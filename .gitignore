@@ -1,0 +1,17 @@
+build
+install
+# Temporary/backup files
+*~
+*.sw*
+
+# Compile flag database for YouCompleteMe
+*.json
+
+# Formatting
+.clang-format
+.vscode
+cmake-*
+CMakeFiles
+CMakeCache.txt
+*.idea
+*build*
