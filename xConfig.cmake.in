@@ -1,0 +1,155 @@
+#== == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == =
+#@PROJECT_NAME @CMake configuration file
+#
+#** File generated automatically, do not modify **
+#
+#Usage from an external project:
+#In your CMakeLists.txt, add these lines:
+#
+#FIND_PACKAGE(@PROJECT_NAME @_VERSION @REQUIRED)
+#TARGET_LINK_LIBRARIES(MY_TARGET_NAME ${@PROJECT_NAME @_LIBS})
+#
+#This file will define the following variables:
+#- @PROJECT_NAME @_LIBS : The list of libraries to links against.
+#- @PROJECT_NAME @_LIB_DIR : The directory where lib files are.
+#Calling LINK_DIRECTORIES with this path is NOT needed.
+#- @PROJECT_NAME @_VERSION : The version of this PROJECT_NAME build.Example : "1.2.0"
+#- @PROJECT_NAME @_VERSION_MAJOR : Major version part of VERSION.Example : "1"
+#- @PROJECT_NAME @_VERSION_MINOR : Minor version part of VERSION.Example : "2"
+#- @PROJECT_NAME @_VERSION_PATCH : Patch version part of VERSION.Example : "0"
+#
+# Do not use the Library if x_FOUND is FALSE
+#== == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == == =
+
+
+if (@MULTI_THREAD@)
+    message(STATUS "Multi thread: ON")
+    add_definitions(-DMULTI_THREAD)
+endif ()
+
+if (@VERBOSE@)
+    message(STATUS "Verbose: ON")
+    add_definitions(-DVERBOSE)
+endif ()
+
+if (@TIMING@)
+    message(STATUS "Timing: ON")
+    add_definitions(-DTIMING)
+endif ()
+
+if (@PHOTOMETRIC_CALI@)
+    add_definitions(-DPHOTOMETRIC_CALI)
+    message(STATUS "Photometric calibration: ON")
+endif ()
+
+if (@MULTI_UAV@)
+    add_definitions(-DMULTI_UAV)
+    message(STATUS "Multi UAV support: ON")
+    if (REQUEST_COMM)
+        add_definitions(-DREQUEST_COMM)
+        message(STATUS "REQUEST_COMM: ON")
+    endif ()
+endif ()
+#################################
+#
+#          OpenCV >= 3.3.1
+#
+#################################
+find_package(OpenCV REQUIRED)
+if (OpenCV_FOUND)
+    if (OpenCV_VERSION VERSION_LESS "3.3.1")
+        message(FATAL_ERROR "OpenCV >= 3.3.1 not found")
+    else ()
+        message("OpenCV ${OpenCV_VERSION} found.")
+    endif ()
+else ()
+    message(FATAL_ERROR "OpenCV >= 3.3.1 not found")
+endif ()
+
+#################################
+#
+#             Boost
+#
+#################################
+find_package(Boost 1.71.0 COMPONENTS thread system filesystem REQUIRED)
+message(STATUS "Boost ${Boost_VERSION} found.")
+
+# Set libraries for multi UAV setup
+if (@MULTI_UAV@)
+    #################################
+    #
+    #              NLopt
+    #
+    #################################
+    find_package(NLopt 2.7.1 REQUIRED)
+    if (NLopt_FOUND)
+        message("NLopt ${NLopt_VERSION} found.")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NLOPT_C_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NLOPT_CXX_FLAGS}")
+    endif ()
+
+    # store all libs and dirs in local vars
+    set(MULTI_UAV_DIRS ${NLOPT_INCLUDE_DIRS})
+    set(MULTI_UAV_LIBS ${NLOPT_LIBRARIES} DBoW3)
+endif ()
+
+# Set libraries photometric calibration setup
+if (@PHOTOMETRIC_CALI@)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.2 -mfpmath=sse")
+
+    #################################
+    #
+    #             Ceres
+    #
+    #################################
+    find_package(Ceres 2.0.0 REQUIRED)
+    if (CERES_FOUND)
+        message(STATUS "Ceres ${CERES_VERSION} found.")
+    endif ()
+
+    #################################
+    #
+    #             OpenMP
+    #
+    #################################
+    find_package(OpenMP)
+    if (OPENMP_FOUND)
+        set(OMP_NUM_THREADS 4)
+        message(STATUS "OpenMP ${OpenMP_VERSION} found")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    endif ()
+
+    set(PHOTOMETRIC_DIRS ${Ceres_INCLUDE_DIR} ${OpenMP_INCLUDE_DIRS})
+    set(PHOTOMETRIC_LIBS ${CERES_LIBRARIES} ${OpenMP_LIBRARIES})
+endif ()
+
+@PACKAGE_INIT@
+set(@PROJECT_NAME@_INCLUDE_DIRS
+        @CONFIG_INCLUDE_DIRS@
+        @OpenCV_INCLUDE_DIRS@
+        @Boost_INCLUDE_DIR@
+        @EIGEN3_INCLUDE_DIR@
+        ${PHOTOMETRIC_DIRS}
+        ${MULTI_UAV_DIRS})
+include("@CMAKE_INSTALL_PREFIX@/@CMAKE_EXPORT_DESTINATION@/@PROJECT_NAME@Exports.cmake")
+if(@MULTI_UAV@)
+  include("@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/cmake/DBow3/DBow3Exports.cmake")
+endif()
+
+include_directories(${@PROJECT_NAME@_INCLUDE_DIRS})
+
+check_required_components(x)
+
+link_directories("@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@")
+
+set(@PROJECT_NAME@_LIB_DIR "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@")
+
+set(@PROJECT_NAME@_LIBRARIES @REQUIRED_LIBRARIES@ @PROJECT_NAME@@PROJECT_DLLVERSION@ @MULTI_UAV_LIBS@ @PHOTOMETRIC_LIBS@)
+
+set(@PROJECT_NAME@_FOUND YES)
+set(@PROJECT_NAME@_FOUND "YES")
+set(@PROJECT_NAME@_VERSION  @PROJECT_VERSION@)
+set(@PROJECT_NAME@_VERSION_MAJOR  @PROJECT_VERSION_MAJOR@)
+set(@PROJECT_NAME@_VERSION_MINOR  @PROJECT_VERSION_MINOR@)
+set(@PROJECT_NAME@_VERSION_PATCH  @PROJECT_VERSION_PATCH@)

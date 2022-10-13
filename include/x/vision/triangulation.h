@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,9 +17,10 @@
 #ifndef X_TRIANGULATION_H_
 #define X_TRIANGULATION_H_
 
-#include <x/vision/types.h>
-#include <x/vision/track.h>
 #include <Eigen/Core>
+
+#include "x/vision/track.h"
+#include "x/vision/types.h"
 
 /**
  * A triangulation class.
@@ -30,25 +31,19 @@
  * poses. Methods include Direct Linear Transform and
  * Gauss-Newton non-linear least squares.
  */
-namespace x
-{
-class Triangulation
-{
-public:
-  
+namespace x {
+class Triangulation {
+ public:
   /**
    * Constructors
    */
-  Triangulation(const x::QuaternionArray& quat_l,
-                const x::Vector3Array& pos_l,
-                const unsigned int max_iter = 10 ,
-                const double term = 0.00001);
+  Triangulation(const x::QuaternionArray& quat_l, x::Vector3Array  pos_l,
+                unsigned int max_iter = 10, double term = 0.00001);
 
   Triangulation(const x::AttitudeList& attitudes,
                 const x::TranslationList& translations,
-                const unsigned int max_iter = 10 ,
-                const double term = 0.00001);
-  
+                unsigned int max_iter = 10, double term = 0.00001);
+
   /**
    * 2-view linear triangulation.
    *
@@ -59,11 +54,8 @@ public:
    * @param[in] i1, i2 Matching indices in the pose vectors
    * @param[out] pt_xyz Triangulated cartesian 3D coordinates
    */
-  void triangulateDlt(const x::Feature& obs1,
-                      const x::Feature& obs2,
-                      const int i1,
-                      const int i2,
-                      Eigen::Vector3d& pt_xyz) const;
+  void triangulateDlt(const x::Feature& obs1, const x::Feature& obs2, int i1,
+                      int i2, Eigen::Vector3d& pt_xyz) const;
 
   /**
    * Non-linear Gauss-Newton triangulation.
@@ -77,20 +69,19 @@ public:
    * @param[out] pt_ivd Triangulated inverse-depth coordinates in
    *                    last frame
    */
-  void triangulateGN(const x::Track& track,
-                     Eigen::Vector3d& pt_ivd) const;
-private:
+  void triangulateGN(const x::Track& track, Eigen::Vector3d& pt_ivd) const;
 
+ private:
   /**
    * Number of poses.
    */
   size_t n_poses_;
-  
+
   /**
    * Camera rotation matrices.
    */
   std::vector<Eigen::Matrix3d> rotations_;
-  
+
   /**
    * Camera positions.
    */
@@ -120,10 +111,9 @@ private:
    * @param[in]  pos  Position
    * @param[out] proj 3x4 projection matrix
    */
-  void pose2proj(const Eigen::Matrix3d& rot,
-                 const Eigen::Vector3d& pos,
+  void pose2proj(const Eigen::Matrix3d& rot, const Eigen::Vector3d& pos,
                  cv::Mat& proj) const;
 };
-}
+}  // namespace x
 
 #endif  // X_TRIANGULATION_H_
