@@ -139,11 +139,13 @@ $ sudo dpkg -i x_1.2.3_$(dpkg --print-architecture).deb
 
 To enable/disable some features of the collaborative approach, set to ON/OFF the CMake options:
 
-- `PHOTOMETRIC_CALI`: if `true` enables the request-response communication pipeline
-- `MULTI_UAV`: if `true` enables the collaborative setup
-- `REQUEST_COMM`: if `true` enables the request-response communication pipeline
-- `GT_DEBUG`: if `true` the library expects to receive matches with the keypoints 3D ground-truth (
+- `PHOTOMETRIC_CALI`: if `ON` enables the request-response communication pipeline
+- `MULTI_UAV`: if `ON` enables the collaborative setup
+- `REQUEST_COMM`: if `ON` enables the request-response communication pipeline
+- `GT_DEBUG`: if `ON` the library expects to receive matches with the keypoints 3D ground-truth (
   see [working with ground truth](#working-with-ground-truth)).
+
+When all the tags are `OFF` the system's configuration is back to the [xVIO](https://github.com/jeff-delaune/x).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
