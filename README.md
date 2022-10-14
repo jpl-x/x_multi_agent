@@ -283,7 +283,7 @@ To run the demo refer to the [ROS wrapper](https://github.com/jpl-x/x_multi_agen
 
 ## Datasets
 
-Dataset to test our system are available [here](https://rpg.ifi.uzh.ch/xctio.html).
+Datasets to test our system are available [here](https://rpg.ifi.uzh.ch/xctio.html).
 
 We provide visual data in the Inveraray Castle around and Inveraray Castle parallel.
 The former contains four drones flying trajectories around the castle. The latter has three drones performing parallel
