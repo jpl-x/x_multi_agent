@@ -283,18 +283,21 @@ To run the demo refer to the [ROS wrapper](https://github.com/jpl-x/x_multi_agen
 
 ## Datasets
 
-Dataset to test our system are available [COMING SOON]().
+Dataset to test our system are available [here](https://rpg.ifi.uzh.ch/xctio.html).
 
 We provide visual data in the Inveraray Castle around and Inveraray Castle parallel.
 The former contains four drones flying trajectories around the castle. The latter has three drones performing parallel
 trajectories in front of the castle, including the landmarks' ground truth. Namely, it contains 3D points
 visible from the three UAVs.
 <p align="center">
-<img src="images/inv_around.png" width="45%"/> <img src="images/inv_parallel.png" width="45%"/>
+<a href=""><img src="images/inv_around.png" width="45%"/></a> <a href=""><img src="images/inv_parallel.png" width="45%"/></a>
 </p>
 
 We also provide the real data dataset with thermal data of two drones flying squared trajectories on the MarsYard.
-![Thermal Mars Yard dataset with two UAVs](images/mars_yard.png "Thermal Mars Yard dataset with two UAVs")
+
+<p align="center">
+<a href=""><img src="images/mars_yard.png" width="45%" alt="Thermal Mars Yard dataset with two UAVs"/></a>
+</p>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
