@@ -19,6 +19,7 @@
 
 #include <optional>
 #include <thread>
+#include <mutex>
 
 #include "x/common/types.h"
 #include "x/ekf/propagator.h"
