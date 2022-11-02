@@ -546,7 +546,7 @@ std::optional<State> VIO::processOtherMeasurements(
 #endif
 
 
-Params loadParamsFromYaml(fsm::path& filePath) {
+Params VIO::loadParamsFromYaml(fsm::path& filePath) {
   std::cout << filePath.string() << std::endl;
   cv::FileStorage file(filePath.string(), cv::FileStorage::READ);
   Params params;
