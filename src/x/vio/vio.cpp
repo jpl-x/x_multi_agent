@@ -201,7 +201,7 @@ void VIO::setUp(const Params &params) {
                  ci_slam_w, params_.iekf_iter);
 
   // EKF setup
-  const size_t state_buffer_sz = 250;  // TODO(jeff) Read from params
+  const size_t state_buffer_sz = params_.state_buffer_size;
   const State default_state = State(n_poses_state, n_features_state);
   const double a_m_max = 50.0;
   const unsigned int delta_seq_imu = 1;
