@@ -298,7 +298,8 @@ void Tracker::track(TiledImage &current_img, const double &timestamp,
 
   previous_features_ = current_features;
   previous_timestamp_ = timestamp;
-  previous_img_ = current_img;
+  // Copy data
+  previous_img_ = current_img.clone(); 
 
 #ifdef PHOTOMETRIC_CALI
   current_img_origin_.copyTo(prev_img_origin_);
