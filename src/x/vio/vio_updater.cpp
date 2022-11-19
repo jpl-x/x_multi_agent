@@ -185,6 +185,16 @@ void VioUpdater::preProcess(const State &state) {
   msckf_matches_ = tracker_.getMsckfMatches();
   tracker_.updateOppMatches(msckf_trks_, slam_trks_, opp_tmp);
 #endif
+  
+#ifdef PHOTOMETRIC_CALI
+  // TODO fix data race (?)
+  TrackList all_tracks = TrackList();
+  TrackList opp_tracks = track_manager_.getOppTracks();
+  all_tracks.insert(all_tracks.end(), slam_trks_.begin(), slam_trks_.end());
+  all_tracks.insert(all_tracks.end(), msckf_trks_.begin(), msckf_trks_.end());
+  all_tracks.insert(all_tracks.end(), opp_tracks.begin(), opp_tracks.end());
+  tracker_.setIntensistyHistory(all_tracks);
+#endif
 }
 
 bool VioUpdater::preUpdate(State &state) {
