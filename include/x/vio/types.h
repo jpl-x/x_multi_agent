@@ -183,6 +183,8 @@ struct Params {
    */
   Vector3 g;
 
+  bool self_init_start_ = false;
+
   int state_buffer_size = 250;
 };
 

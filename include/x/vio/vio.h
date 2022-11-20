@@ -258,6 +258,10 @@ class VIO {
   MatchList importMatches(const std::vector<double> &match_vector,
                           unsigned int seq, x::TiledImage &img_plot) const;
 
+  std::vector<Vector3> imu_data_batch_{};
+  bool initialize_start_{false};
+  bool self_init_start_{false};
+
 #ifdef MULTI_THREAD
   TiledImage matches_img_;  // current UAV image to store the matches
 

@@ -54,6 +54,7 @@ bool VIO::isInitialized() const { return initialized_; }
 void VIO::initAtTime(const double &time) {
   ekf_.lock();
   initialized_ = false;
+  initialize_start_ = self_init_start_;
   vio_updater_.track_manager_.clear();
   vio_updater_.state_manager_.clear();
 
@@ -112,6 +113,9 @@ void VIO::initAtTime(const double &time) {
 void VIO::setUp(const Params &params) {
   // Copy parameters
   params_ = params;
+
+  self_init_start_ = params_.self_init_start_;
+  initialize_start_ = self_init_start_;
 
   // Initialize camera geometry
   camera_ =
@@ -339,6 +343,29 @@ void VIO::getMsckfFeatures(Vector3dArray &inliers, Vector3dArray &outliers) {
 std::optional<State> VIO::processImu(const double &timestamp,
                                      const unsigned int seq, const Vector3 &w_m,
                                      const Vector3 &a_m) {
+
+  if (initialize_start_) {
+    if (imu_data_batch_.size() < 50) {
+        imu_data_batch_.push_back(a_m);
+        return std::nullopt;
+    }
+    imu_data_batch_.push_back(a_m);
+    Vector3 avg_a = Vector3::Zero();
+    for (const auto &v: imu_data_batch_) {
+        avg_a += v;
+    }
+    avg_a /= static_cast<double>(imu_data_batch_.size());
+
+    Vector3 g(0, 0, a_m.norm());
+    params_.q = Quaternion().setFromTwoVectors(avg_a, g);
+    // params_.p = Vector3::Zero();
+    BOOST_LOG_TRIVIAL(info) << "Initial pose set to: " << params_.q.toRotationMatrix() << std::endl
+                            << (params_.q.toRotationMatrix() * a_m);
+    initAtTime(timestamp);
+    imu_data_batch_.clear();
+    initialize_start_ = false;
+    return std::nullopt;
+  }
   return ekf_.processImu(timestamp, seq, w_m, a_m);
 }
 
