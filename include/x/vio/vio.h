@@ -22,6 +22,7 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <mutex>
 
 #include "x/common/types.h"
 #include "x/ekf/ekf.h"
