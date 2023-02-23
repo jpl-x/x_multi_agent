@@ -25,6 +25,7 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/features2d.hpp>
 #include <thread>
+#include <mutex>
 
 #include "x/ekf/simple_state.h"
 #include "x/place_recognition/database.h"
