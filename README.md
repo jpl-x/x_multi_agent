@@ -16,7 +16,7 @@
 <h2 align="center">The X Library</h2>
 
   <p align="center">
-A generic C++ library for single and multi system vision-based navigation, with multi-sensor fusion capabilities for thermal, range, solar and GPS measurements.
+A generic C++ library for single and multi system vision-based navigation, with multi-sensor fusion capabilities for thermal, range, solar and inertial measurements.
     <br />
     <a href="https://rpg.ifi.uzh.ch/xctio.html">Webpage</a>
     ·
