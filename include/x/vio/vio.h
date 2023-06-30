@@ -32,7 +32,7 @@
 #include "x/vio/track_manager.h"
 #include "x/vio/types.h"
 #include "x/vio/vio_updater.h"
-#include "x/vision/camera.h"
+#include "x/camera_models/camera.h"
 #include "x/vision/tiled_image.h"
 #include "x/vision/tracker.h"
 
@@ -240,7 +240,7 @@ class VIO {
    */
   double msckf_baseline_x_n_, msckf_baseline_y_n_;
 
-  Camera camera_;
+  std::shared_ptr<CameraModel> camera_;
   Tracker tracker_;
   TrackManager track_manager_;
   StateManager state_manager_;

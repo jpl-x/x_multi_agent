@@ -18,9 +18,9 @@
 #define TRACK_MANAGER_H_
 
 #include <opencv2/imgproc/imgproc.hpp>
-#include <x/vio/types.h>
-#include <x/vision/camera.h>
-#include <x/vision/types.h>
+#include "x/vio/types.h"
+#include "x/camera_models/camera.h"
+#include "x/vision/types.h"
 
 namespace x {
 /**
@@ -33,9 +33,11 @@ namespace x {
 class TrackManager {
 public:
   TrackManager();
-  TrackManager(const Camera &camera, const double min_baseline_x_n,
+
+  TrackManager(std::shared_ptr<CameraModel> camera, const double min_baseline_x_n,
                const double min_baseline_y_n);
-  void setCamera(Camera camera);
+
+  void setCamera(std::shared_ptr<CameraModel> camera);
 
   // All track getters are in normalized image coordinates
   TrackList getMsckfTracks() const; // Tracks ready for MSCKF update
@@ -97,7 +99,7 @@ public:
   TrackList getMostPromisingTracks(int k);
 
 private:
-  Camera camera_;
+    std::shared_ptr<CameraModel> camera_;
   TrackList slam_trks_; // persistent feature tracks (excluding new ones)
   // New SLAM tracks (both semi-infinite depths uncertainty and MSCKF)
   TrackList new_slam_trks_;

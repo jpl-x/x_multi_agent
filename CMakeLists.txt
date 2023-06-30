@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.18...3.16)
 
-set(VERSION 1.2.3)
+set(VERSION 1.2.4)
 project(x VERSION ${VERSION} LANGUAGES C CXX)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -213,6 +213,11 @@ include_directories(include
         )
 
 set(SOURCE
+        src/x/camera_models/camera_model.cpp
+        src/x/camera_models/camera_fov.cpp
+        src/x/camera_models/camera_radtan.cpp
+        src/x/camera_models/camera_equidistant.cpp
+        src/x/camera_models/camera_none.cpp
         src/x/ekf/ekf.cpp
         src/x/ekf/propagator.cpp
         src/x/ekf/state.cpp
@@ -227,7 +232,6 @@ set(SOURCE
         src/x/vio/slam_update.cpp
         src/x/vio/range_update.cpp
         src/x/vio/solar_update.cpp
-        src/x/vision/camera.cpp
         src/x/vision/feature.cpp
         src/x/vision/tiled_image.cpp
         src/x/vision/tracker.cpp

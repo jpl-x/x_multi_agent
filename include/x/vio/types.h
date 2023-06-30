@@ -23,6 +23,7 @@
 #include "x/vision/feature.h"
 #include "x/vision/tiled_image.h"
 #include "x/vision/types.h"
+#include "x/camera_models/camera.h"
 /**
  * This header defines common types used in xVIO.
  */
@@ -47,13 +48,8 @@ struct Params {
   Vector3 sigma_dbw;
   Vector3 sigma_dba;
   // camera parameters
-  double cam_fx;
-  double cam_fy;
-  double cam_cx;
-  double cam_cy;
-  double cam_s;
-  int img_height;
-  int img_width;
+  std::shared_ptr<CameraModel> camera;
+
   // imu-camera calibration parameters
   Vector3 p_ic;
   Quaternion q_ic;
@@ -74,7 +70,7 @@ struct Params {
   double n_w;
   double n_bw;
 
-  // Tracking and detector paramters
+        // Tracking and detector parameters
   int fast_detection_delta;
   bool non_max_supp;
   int block_half_length;
