@@ -25,16 +25,16 @@ using namespace x;
 
 TrackManager::TrackManager() {}
 
-TrackManager::TrackManager(const Camera &camera, const double min_baseline_x_n,
+TrackManager::TrackManager(std::shared_ptr<CameraModel> camera, const double min_baseline_x_n,
                            const double min_baseline_y_n)
     : camera_(camera),
       min_baseline_x_n_(min_baseline_x_n),
       min_baseline_y_n_(min_baseline_y_n) {}
 
-void TrackManager::setCamera(Camera camera) { camera_ = camera; }
+void TrackManager::setCamera(std::shared_ptr<CameraModel> camera) { camera_ = camera; }
 
 TrackList TrackManager::normalizeSlamTracks(const int size_out) const {
-  return camera_.normalize(slam_trks_, size_out);
+  return camera_->normalize(slam_trks_, size_out);
 }
 
 TrackList TrackManager::getMsckfTracks() const { return msckf_trks_n_; }
@@ -57,7 +57,7 @@ TrackList TrackManager::getOppTracks() {
   //     throw std::runtime_error("Opp track contains empty track.");
   //   }
   // }
-  return camera_.normalize(opp_trks_, opp_trks_.size());
+  return camera_->normalize(opp_trks_, opp_trks_.size());
 }
 
 #ifdef MULTI_UAV
@@ -65,7 +65,7 @@ FeatureList TrackManager::getOppFeatures() const {
   FeatureList feature_list;
   for (size_t i = 0; i < opp_trks_.size(); i++) {
     if (!opp_trks_[i].empty())
-      feature_list.emplace_back(camera_.normalize(opp_trks_[i].back()));
+      feature_list.emplace_back(camera_->normalize(opp_trks_[i].back()));
   }
   return feature_list;
 }
@@ -250,7 +250,7 @@ void TrackManager::manageTracks(MatchList &matches, const AttitudeList cam_rots,
         // list)
         collab_opp_featrues_print_.push_back(dead_track.back());
         msckf_trks_short_n_.emplace_back(
-            camera_.normalize(dead_track, cam_rots.size()));
+            camera_->normalize(dead_track, cam_rots.size()));
 
         opp_ids_->erase(opp_ids_->begin() + o);
         count_multi_msckf_++;
@@ -265,7 +265,7 @@ void TrackManager::manageTracks(MatchList &matches, const AttitudeList cam_rots,
     if (a.size() < 2) {
       continue;
     }
-    Track normalized_track = camera_.normalize(a, cam_rots_short.size());
+    Track normalized_track = camera_->normalize(a, cam_rots_short.size());
     if (checkBaseline(normalized_track, cam_rots_short)) {
       msckf_trks_short_n_.push_back(normalized_track);
     }
@@ -291,7 +291,7 @@ void TrackManager::manageTracks(MatchList &matches, const AttitudeList cam_rots,
           // list)
           collab_opp_featrues_print_.push_back(opp_trks_[t].back());
           msckf_trks_n_.emplace_back(
-              camera_.normalize(opp_trks_[t], cam_rots.size()));
+              camera_->normalize(opp_trks_[t], cam_rots.size()));
 
           opp_trks_.erase(opp_trks_.begin() + t);
           opp_ids_->erase(opp_ids_->begin() + o);
@@ -377,7 +377,7 @@ void TrackManager::manageTracks(MatchList &matches, const AttitudeList cam_rots,
             // Normalize track (and crop it if it longer than the attitude
             // list)
             Track normalized_track =
-                camera_.normalize(opp_trks_[t], cam_rots.size());
+                camera_->normalize(opp_trks_[t], cam_rots.size());
             if (checkBaseline(normalized_track, cam_rots)) {
               msckf_trks_n_.push_back(normalized_track);
               msckf_featrues_print_.push_back(opp_trks_[t].back());
@@ -409,7 +409,7 @@ void TrackManager::manageTracks(MatchList &matches, const AttitudeList cam_rots,
     // Normalize coordinates
     const Track trk = new_slam_trks_[i];
     // Track cannot be longer than the attitude list
-    const Track normalized_trk = camera_.normalize(trk, cam_rots.size());
+    const Track normalized_trk = camera_->normalize(trk, cam_rots.size());
 
     // Check baseline and sort
     if (checkBaseline(normalized_trk, cam_rots)) {
@@ -698,14 +698,14 @@ void TrackManager::plotFeatures(TiledImage &img, const int min_track_length) {
                           std::to_string(msckf_trks_short_n_.size());
   std::string pot_str = std::string(" - Pot: ") + std::to_string(count_pot);
 
-  cv::putText(img, slam_str, cv::Point((int)10, (int)camera_.getHeight() - 10),
+  cv::putText(img, slam_str, cv::Point((int)10, (int)camera_->getHeight() - 10),
               cv::FONT_HERSHEY_PLAIN, 1.0, green, 1.5, 8, false);
 
 #ifdef MULTI_UAV
   std::string msckf_multi_str =
       std::string("Multi OPP-OPP: ") + std::to_string(count_multi_msckf_);
   cv::putText(img, msckf_multi_str,
-              cv::Point((int)10, (int)camera_.getHeight() - 25),
+              cv::Point((int)10, (int)camera_->getHeight() - 25),
               cv::FONT_HERSHEY_PLAIN, 1.0, red, 1.5, 8, false);
 #endif
 
@@ -714,18 +714,18 @@ void TrackManager::plotFeatures(TiledImage &img, const int min_track_length) {
       cv::getTextSize(slam_str, cv::FONT_HERSHEY_PLAIN, 1.0, 1.5, &baseline);
   int offset = textSize.width;
   cv::putText(img, opp_str,
-              cv::Point((int)10 + offset, (int)camera_.getHeight() - 10),
+              cv::Point((int)10 + offset, (int)camera_->getHeight() - 10),
               cv::FONT_HERSHEY_PLAIN, 1.0, orange, 1.5, 8, false);
   textSize =
       cv::getTextSize(opp_str, cv::FONT_HERSHEY_PLAIN, 1.0, 1.5, &baseline);
   offset += textSize.width;
   cv::putText(img, msckf_str,
-              cv::Point((int)10 + offset, (int)camera_.getHeight() - 10),
+              cv::Point((int)10 + offset, (int)camera_->getHeight() - 10),
               cv::FONT_HERSHEY_PLAIN, 1.0, purple, 1.5, 8, false);
   textSize =
       cv::getTextSize(msckf_str, cv::FONT_HERSHEY_PLAIN, 1.0, 1.5, &baseline);
   offset += textSize.width;
   cv::putText(img, pot_str,
-              cv::Point((int)10 + offset, (int)camera_.getHeight() - 10),
+              cv::Point((int)10 + offset, (int)camera_->getHeight() - 10),
               cv::FONT_HERSHEY_PLAIN, 1.0, blue, 1.5, 8, false);
 }

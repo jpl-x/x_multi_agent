@@ -25,7 +25,7 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/features2d.hpp>
 
-#include "x/vision/camera.h"
+#include "x/camera_models/camera.h"
 #include "x/vision/types.h"
 
 #ifdef MULTI_UAV
@@ -72,7 +72,7 @@ class Tracker {
    * @param win_size_h_photo
    * @param fast_detection_delta_photo
    */
-  Tracker(const Camera &cam, int fast_detection_delta, bool non_max_supp,
+  Tracker(const std::shared_ptr<CameraModel> cam, int fast_detection_delta, bool non_max_supp,
           unsigned int block_half_length, unsigned int margin,
           unsigned int n_feat_min, int outlier_method, double outlier_param1,
           double outlier_param2, int win_size_w, int win_size_h, int max_level,
@@ -118,7 +118,7 @@ class Tracker {
    * @param win_size_h_photo
    * @param fast_detection_delta_photo
    */
-  void setParams(const Camera &cam, int fast_detection_delta, bool non_max_supp,
+        void setParams(std::shared_ptr<CameraModel> cam, int fast_detection_delta, bool non_max_supp,
                  unsigned int block_half_length, unsigned int margin,
                  unsigned int n_feat_min, int outlier_method,
                  double outlier_param1, double outlier_param2, int win_size_w,
@@ -241,7 +241,7 @@ class Tracker {
   double previous_timestamp_{0};
   TiledImage previous_img_;
   // Tracker params
-  Camera camera_;
+  std::shared_ptr<CameraModel> camera_;
   int fast_detection_delta_ =
       9;  // the intensity difference threshold for the FAST feature detector
   bool non_max_supp_ = true;  // if true, non-maximum suppression is applied to

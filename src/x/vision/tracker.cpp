@@ -29,7 +29,7 @@ Tracker::~Tracker() {}
 
 Tracker::Tracker() = default;
 
-Tracker::Tracker(const Camera &cam, const int fast_detection_delta,
+Tracker::Tracker(const std::shared_ptr<CameraModel> cam, const int fast_detection_delta,
                  const bool non_max_supp, const unsigned int block_half_length,
                  unsigned int margin, unsigned int n_feat_min,
                  int outlier_method, double outlier_param1,
@@ -87,7 +87,7 @@ Tracker::Tracker(const Camera &cam, const int fast_detection_delta,
 }
 
 void Tracker::setParams(
-    const Camera &cam, const int fast_detection_delta, const bool non_max_supp,
+    const std::shared_ptr<CameraModel> cam, const int fast_detection_delta, const bool non_max_supp,
     const unsigned int block_half_length, const unsigned int margin,
     const unsigned int n_feat_min, const int outlier_method,
     const double outlier_param1, const double outlier_param2,
@@ -166,7 +166,7 @@ void Tracker::track(TiledImage &current_img, const double &timestamp,
     featureDetection(current_img, current_features, timestamp, frame_number,
                      old_features);
     // Undistortion of current features
-    camera_.undistort(current_features);
+    camera_->undistort(current_features);
 #ifdef TIMING
     clock3 = clock();
 
@@ -231,10 +231,10 @@ void Tracker::track(TiledImage &current_img, const double &timestamp,
     clock5 = clock();
 #endif
     // Undistortion of current features
-    camera_.undistort(current_features);
+    camera_->undistort(current_features);
     // Undistort features in the previous image
     // TODO(jeff) only do it for new features newly detected
-    camera_.undistort(previous_features_);
+    camera_->undistort(previous_features_);
 
     //==========================================================================
     // Outlier removal

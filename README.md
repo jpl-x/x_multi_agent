@@ -134,7 +134,7 @@ $ git clone git@github.com:jpl-x/x_multi_agent.git
 $ mkdir build && cd build
 $ cmake ..
 $ make package
-$ sudo dpkg -i x_1.2.3_$(dpkg --print-architecture).deb
+$ sudo dpkg -i x_1.2.4_$(dpkg --print-architecture).deb
 ```
 
 To enable/disable some features of the collaborative approach, set to ON/OFF the CMake options:

@@ -118,9 +118,7 @@ void VIO::setUp(const Params &params) {
   initialize_start_ = self_init_start_;
 
   // Initialize camera geometry
-  camera_ =
-      Camera(params_.cam_fx, params_.cam_fy, params_.cam_cx, params_.cam_cy,
-             params_.cam_s, params_.img_width, params_.img_height);
+    camera_ = params_.camera;
 
   if (params_.min_track_length > params_.n_poses_max) {
     throw std::invalid_argument(
@@ -160,9 +158,9 @@ void VIO::setUp(const Params &params) {
   // Compute minimum MSCKF baseline in normal plane (square-pixel assumption
   // along x and y
   msckf_baseline_x_n_ =
-      params_.msckf_baseline / (params_.img_width * params_.cam_fx);
+            params_.msckf_baseline / (camera_->getFx());
   msckf_baseline_y_n_ =
-      params_.msckf_baseline / (params_.img_height * params_.cam_fy);
+            params_.msckf_baseline / (camera_->getFy());
 
   // Set up tracker and track manager
   track_manager_ =
@@ -205,7 +203,7 @@ void VIO::setUp(const Params &params) {
                  ci_slam_w, params_.iekf_iter);
 
   // EKF setup
-  const size_t state_buffer_sz = params_.state_buffer_size;
+    const size_t state_buffer_sz = 250;  // TODO(jeff) Read from params
   const State default_state = State(n_poses_state, n_features_state);
   const double a_m_max = 50.0;
   const unsigned int delta_seq_imu = 1;
@@ -287,11 +285,11 @@ std::optional<State> VIO::processMatchesMeasurement(
 
   // Compute 2D image coordinates of the LRF impact point on the ground
   Feature lrf_img_pt;
-  lrf_img_pt.setXDist(static_cast<double>((camera_.getWidth() + 1) / 2.0));
-  lrf_img_pt.setYDist(static_cast<double>((camera_.getHeight() + 1) / 2.0));
-  camera_.undistort(lrf_img_pt);
+    lrf_img_pt.setXDist(static_cast<double>((camera_->getWidth() + 1) / 2.0));
+    lrf_img_pt.setYDist(static_cast<double>((camera_->getHeight() + 1) / 2.0));
+    camera_->undistort(lrf_img_pt);
   last_range_measurement_.img_pt = lrf_img_pt;
-  last_range_measurement_.img_pt_n = camera_.normalize(lrf_img_pt);
+    last_range_measurement_.img_pt_n = camera_->normalize(lrf_img_pt);
 
   // Pass measurement data to updater
   VioMeasurement measurement(timestamp_corrected, seq, matches, feature_img,
@@ -403,11 +401,11 @@ MatchList VIO::importMatches(const std::vector<double> &match_vector,
     // Features and match initializations
     Feature previous_feature(match_vector[feature_arr_blk_sz * i + 1], seq - 1,
                              0.0, 0.0, x_dist_prev, y_dist_prev, -1.0);
-    camera_.undistort(previous_feature);
+        camera_->undistort(previous_feature);
 
     Feature current_feature(match_vector[feature_arr_blk_sz * i + 4], seq, 0.0,
                             0.0, x_dist_curr, y_dist_curr, -1.0);
-    camera_.undistort(current_feature);
+        camera_->undistort(current_feature);
 
 #ifdef GT_DEBUG
     // 3D landmark given by the ground truth
@@ -608,14 +606,22 @@ Params VIO::loadParamsFromYaml(fsm::path& filePath) {
   params.sigma_dbw << sigma_dbw[0], sigma_dbw[1], sigma_dbw[2];
   params.sigma_dba << sigma_dba[0], sigma_dba[1], sigma_dba[2];
 
-  file["cam1_fx"] >> params.cam_fx;
-  file["cam1_fy"] >> params.cam_fy;
-  file["cam1_cx"] >> params.cam_cx;
-  file["cam1_cy"] >> params.cam_cy;
-  file["cam1_s"] >> params.cam_s;
 
-  file["cam1_img_height"] >> params.img_height;
-  file["cam1_img_width"] >> params.img_width;
+  double cam_fx, cam_fy, cam_cx, cam_cy, img_height, img_width;
+  std::vector<double> dist_coeffs;
+  std::string distortion_model;
+  file["cam1_fx"] >> cam_fx;
+  file["cam1_fy"] >> cam_fy;
+  file["cam1_cx"] >> cam_cx;
+  file["cam1_cy"] >> cam_cy;
+  file["cam1_dist"] >> dist_coeffs;
+  file["cam1_img_height"] >> img_height;
+  file["cam1_img_width"] >> img_width;
+  file["distortion_model"] >> distortion_model;
+
+  Camera::Params camera_params(cam_fx, cam_fy, cam_cx, cam_cy, dist_coeffs, img_width, img_height, distortion_model);
+  params.camera = Camera::constructCamera(camera_params);
+
   file["cam1_p_ic"] >> p_ic;
   file["cam1_q_ic"] >> q_ic;
 
